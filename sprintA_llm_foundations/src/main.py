@@ -5,6 +5,8 @@ It provides examples of both synchronous and streaming requests.
 from dotenv import load_dotenv
 import os
 from llm_api_client import get_response, stream_response
+from config import Config
+from util import trim_history
 
 load_dotenv()
 
@@ -14,17 +16,22 @@ def main():
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"      
     }
-    prompt_sync_request = "Write a short story about a cat"
-    prompt_stream_request = "Write a short story about a dog"
-    model = "llama-3.1-8b-instant"
-    print("Starting the request...")
-    sync_response = get_response(prompt_sync_request, model, headers)
-    print("Synchronous response:")
-    print(sync_response)
-    print("\nStreaming response:")
-    for chunk in stream_response(prompt_stream_request, model, headers):
-        print(chunk, end="", flush=True)
-    print()
+    
+    config_object = Config()
+    messages = [{"role": "system", "content": config_object.system_prompt}]
+    
+    while True:
+        assistant_reply:str = ""
+        user_input = input("You: ")
+        if user_input.lower() in ("exit", "quit"):
+            break;
+        messages.append({"role": "user", "content": user_input})
+        trimmed_conv_history = trim_history(messages=messages, max_truns=config_object.max_history_turns)
+        for chunk in stream_response(trimmed_conv_history, config_object.model, headers):
+            print(chunk, end="", flush=True)
+            assistant_reply += chunk
+        print()
+        messages.append({"role": "assistant", "content": assistant_reply})
 
 if __name__ == "__main__":
     main() 
