@@ -10,3 +10,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/groq_client"]
+
+[tool.black]
+target-version = ["py311", "py312", "py313", "py314",]
