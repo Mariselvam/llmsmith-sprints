@@ -1,4 +1,4 @@
-from util import trim_history
+from groq_client import trim_history
 
 def test_trim_history_keep_system_messages():
     messages = [{"role": "system", "content": "system_msg"}] + [{"role": "user", "content": f"msg{i}"} for i in range(20)]

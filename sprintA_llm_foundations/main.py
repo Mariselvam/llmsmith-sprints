@@ -4,13 +4,11 @@ It provides examples of both synchronous and streaming requests.
 """
 from dotenv import load_dotenv
 import os
-from llm_api_client import get_response, stream_response
-from config import Config
-from util import trim_history
+from groq_client import  stream_response, Config, trim_history
 
 load_dotenv()
 
-def main():
+def main() -> None:
     API_KEY = os.getenv('GROQ_API_KEY')
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -24,9 +22,9 @@ def main():
         assistant_reply:str = ""
         user_input = input("You: ")
         if user_input.lower() in ("exit", "quit"):
-            break;
+            break
         messages.append({"role": "user", "content": user_input})
-        trimmed_conv_history = trim_history(messages=messages, max_truns=config_object.max_history_turns)
+        trimmed_conv_history = trim_history(messages=messages, max_turns=config_object.max_history_turns)
         for chunk in stream_response(trimmed_conv_history, config_object.model, headers):
             print(chunk, end="", flush=True)
             assistant_reply += chunk

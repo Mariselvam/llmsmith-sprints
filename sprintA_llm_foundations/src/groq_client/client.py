@@ -4,6 +4,7 @@ This module provides functions to interact with the Groq API for generating resp
 import requests
 import json
 from typing import Iterator
+from .util import _raise_for_status
 
 def get_response(messages: list[dict], model: str, headers: dict) -> str:
     """
@@ -13,7 +14,7 @@ def get_response(messages: list[dict], model: str, headers: dict) -> str:
     url = get_api_url()
     payload = construct_payload(messages, model)
     response = requests.post(url, headers=headers, json=payload)
-    response.raise_for_status()
+    _raise_for_status(response=response)
     json_response = response.json()
     return json_response["choices"][0]["message"]["content"]
 
@@ -25,7 +26,7 @@ def stream_response(messages: list[dict], model: str, headers: dict) -> Iterator
     url = get_api_url()
     payload = construct_payload(messages, model, streaming=True)
     with requests.post(url, headers=headers, json=payload, stream=True) as response:
-        response.raise_for_status()
+        _raise_for_status(response=response)
         for line in response.iter_lines():
             if not line:
                 continue
